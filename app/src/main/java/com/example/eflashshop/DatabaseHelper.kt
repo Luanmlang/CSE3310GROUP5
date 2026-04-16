@@ -111,6 +111,21 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
             """.trimIndent()
         )
+
+        insertSampleData(db)
+    }
+
+    //HARDCODE DATA FOR DATABASE FOR NOW
+    private fun insertSampleData(db: SQLiteDatabase) {
+        db.execSQL("INSERT INTO $TABLE_USER ($COLUMN_USER_EMAIL, $COLUMN_USER_NAME, $COLUMN_USER_ROLE, $COLUMN_USER_CREATED_AT) VALUES ('seller@example.com', 'Test Seller', 'seller', '2024-01-01')")
+
+        db.execSQL("INSERT INTO $TABLE_CATEGORY ($COLUMN_CATEGORY_NAME) VALUES ('Electronics')")
+        db.execSQL("INSERT INTO $TABLE_CATEGORY ($COLUMN_CATEGORY_NAME) VALUES ('Fashion')")
+        db.execSQL("INSERT INTO $TABLE_CATEGORY ($COLUMN_CATEGORY_NAME) VALUES ('Home & Garden')")
+
+        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('Wireless Headphones', 99.99, 'Premium wireless headphones', 1, 1)")
+        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('USB-C Cable', 15.99, 'High-speed USB-C charging and data cable. Compatible with most modern devices.', 1, 1)")
+        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('T-Shirt', 29.99, 'Comfortable cotton T-shirt available in multiple colors and sizes.', 2, 1)")
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -127,7 +142,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         private const val DATABASE_NAME = "eflashshop.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 4
 
         const val TABLE_USER = "user"
         const val COLUMN_USER_ID = "id"
