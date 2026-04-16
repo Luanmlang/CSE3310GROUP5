@@ -6,18 +6,24 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.eflashshop.DatabaseHelper
 import com.example.eflashshop.R
 import com.example.eflashshop.activity.CartActivity
+import com.example.eflashshop.model.ProductAssetModel
 import com.example.eflashshop.model.ProductViewModel
 import com.example.eflashshop.repository.ProductRepository
 import com.example.eflashshop.repository.CartRepository
 
 class ItemDetailActivity : AppCompatActivity() {
 
+    private lateinit var ivProductImage: ImageView
+    private lateinit var ivSellerAvatar: ImageView
     private lateinit var tvProductName: TextView
+    private lateinit var tvSellerName: TextView
+    private lateinit var tvSellerEmail: TextView
     private lateinit var tvProductPrice: TextView
     private lateinit var tvProductDescription: TextView
     private lateinit var tvProductCategory: TextView
@@ -27,6 +33,7 @@ class ItemDetailActivity : AppCompatActivity() {
     private lateinit var btnHome: ImageButton
     private lateinit var btnSearch: ImageButton
     private lateinit var btnProfile: ImageButton
+    private lateinit var btnAddProduct: ImageButton
     private lateinit var cartBar: View
     private lateinit var btnCart: ImageButton
     private lateinit var tvCartBadge: TextView
@@ -58,7 +65,11 @@ class ItemDetailActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
+        ivProductImage = findViewById(R.id.ivProductImage)
+        ivSellerAvatar = findViewById(R.id.ivSellerAvatar)
         tvProductName = findViewById(R.id.tvProductName)
+        tvSellerName = findViewById(R.id.tvSellerName)
+        tvSellerEmail = findViewById(R.id.tvSellerEmail)
         tvProductPrice = findViewById(R.id.tvProductPrice)
         tvProductDescription = findViewById(R.id.tvProductDescription)
         tvProductCategory = findViewById(R.id.tvProductCategory)
@@ -68,6 +79,7 @@ class ItemDetailActivity : AppCompatActivity() {
         btnHome = findViewById(R.id.btnHome)
         btnSearch = findViewById(R.id.btnSearch)
         btnProfile = findViewById(R.id.btnProfile)
+        btnAddProduct = findViewById(R.id.btnAddProduct)
         cartBar = findViewById(R.id.cartBar)
         btnCart = findViewById(R.id.btnCart)
         tvCartBadge = findViewById(R.id.tvCartBadge)
@@ -80,9 +92,10 @@ class ItemDetailActivity : AppCompatActivity() {
     private fun observeViewModel() {
         productViewModel.product.observe(this) { product ->
             if (product != null) {
+                ProductAssetModel.bindProductImage(ivProductImage, product)
                 tvProductName.text = product.name
                 tvProductPrice.text = "$${product.price}"
-                tvProductDescription.text = product.description
+                tvProductDescription.text = product.description.orEmpty()
             }
         }
 
@@ -92,9 +105,29 @@ class ItemDetailActivity : AppCompatActivity() {
             }
         }
 
+        productViewModel.sellerName.observe(this) { sellerName ->
+            tvSellerName.text = if (sellerName.isNullOrBlank()) {
+                "Sold by Marketplace Seller"
+            } else {
+                "Sold by $sellerName"
+            }
+        }
+
+        productViewModel.sellerEmail.observe(this) { sellerEmail ->
+            tvSellerEmail.text = if (sellerEmail.isNullOrBlank()) {
+                "seller@shop.com"
+            } else {
+                sellerEmail
+            }
+        }
+
+        productViewModel.sellerImageRef.observe(this) { imageRef ->
+            ivSellerAvatar.setImageResource(ProductAssetModel.resolveUserAvatar(imageRef))
+        }
+
         productViewModel.cartItemCount.observe(this) { count ->
-            tvCartBadge.text = if (count == 1) "1 item" else "$count items"
-            tvCartSummary.text = "View Cart"
+            tvCartBadge.text = if (count > 99) "99+" else count.toString()
+            tvCartSummary.text = "Cart"
         }
 
         productViewModel.showCartBar.observe(this) { show ->
@@ -122,12 +155,15 @@ class ItemDetailActivity : AppCompatActivity() {
         }
 
         btnSearch.setOnClickListener {
-            startActivity(Intent(this, HomePageActivity::class.java))
-            finish()
+            startActivity(Intent(this, SearchResultsActivity::class.java))
         }
 
         btnProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
+        }
+
+        btnAddProduct.setOnClickListener {
+            startActivity(Intent(this, SellProductActivity::class.java))
         }
 
         btnCart.setOnClickListener {

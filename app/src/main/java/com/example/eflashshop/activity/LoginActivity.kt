@@ -13,6 +13,7 @@ import com.example.eflashshop.login.AuthStore
 class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AuthStore.ensureSystemAccounts(this)
 
         if (AuthStore.isLoggedIn(this)) {
             startActivity(Intent(this, HomePageActivity::class.java))
@@ -22,25 +23,29 @@ class LoginActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_login)
 
-        val usernameInput = findViewById<EditText>(R.id.etUsername)
+        val emailInput = findViewById<EditText>(R.id.etEmail)
         val passwordInput = findViewById<EditText>(R.id.etPassword)
         val loginButton = findViewById<Button>(R.id.btnLogin)
         val registerLink = findViewById<TextView>(R.id.tvGoRegister)
 
         loginButton.setOnClickListener {
-            val username = usernameInput.text.toString().trim()
+            val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString()
 
-            if (username.isBlank() || password.isBlank()) {
-                Toast.makeText(this, "Enter username and password", Toast.LENGTH_SHORT).show()
+            if (email.isBlank() || password.isBlank()) {
+                Toast.makeText(this, "Enter email and password", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (!email.contains("@")) {
+                Toast.makeText(this, "Enter a valid email", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (AuthStore.loginUser(this, username, password)) {
+            if (AuthStore.loginUser(this, email, password)) {
                 startActivity(Intent(this, HomePageActivity::class.java))
                 finish()
             } else {
-                Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
             }
         }
 

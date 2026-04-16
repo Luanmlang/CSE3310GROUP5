@@ -1,19 +1,22 @@
 package com.example.eflashshop
 
+import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.example.eflashshop.entities.Product
+import com.example.eflashshop.login.AuthStore
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, DATABASE_NAME, null, DATABASE_VERSION) {
     val appContext: Context = context.applicationContext
-    
+
     override fun onConfigure(db: SQLiteDatabase) {
         super.onConfigure(db)
         db.setForeignKeyConstraintsEnabled(true)
     }
-    
+
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(
             """
@@ -22,11 +25,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
                 $COLUMN_USER_EMAIL TEXT NOT NULL UNIQUE,
                 $COLUMN_USER_NAME TEXT NOT NULL,
                 $COLUMN_USER_ROLE TEXT NOT NULL,
+                $COLUMN_USER_PROFILE_IMAGE TEXT,
                 $COLUMN_USER_CREATED_AT TEXT NOT NULL
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_ADDRESS (
@@ -40,7 +44,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_CATEGORY (
@@ -49,7 +53,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_PRODUCTS (
@@ -57,14 +61,16 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
                 $COLUMN_PRODUCT_NAME TEXT NOT NULL,
                 $COLUMN_PRODUCT_PRICE REAL NOT NULL,
                 $COLUMN_PRODUCT_DESCRIPTION TEXT,
+                $COLUMN_PRODUCT_IMAGE_REF TEXT,
                 $COLUMN_PRODUCT_CATEGORY_ID INTEGER NOT NULL,
-                $COLUMN_PRODUCT_USER_ID INTEGER NOT NULL,
+                $COLUMN_PRODUCT_SELLER_USER_ID INTEGER NOT NULL,
+                $COLUMN_PRODUCT_IS_LISTED INTEGER NOT NULL DEFAULT 1,
                 FOREIGN KEY ($COLUMN_PRODUCT_CATEGORY_ID) REFERENCES $TABLE_CATEGORY($COLUMN_CATEGORY_ID) ON DELETE CASCADE,
-                FOREIGN KEY ($COLUMN_PRODUCT_USER_ID) REFERENCES $TABLE_USER($COLUMN_USER_ID) ON DELETE CASCADE
+                FOREIGN KEY ($COLUMN_PRODUCT_SELLER_USER_ID) REFERENCES $TABLE_USER($COLUMN_USER_ID) ON DELETE CASCADE
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_CART (
@@ -73,7 +79,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_CART_ITEM (
@@ -86,20 +92,20 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_ORDERS (
                 $COLUMN_ORDER_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $COLUMN_ORDER_USER_ID INTEGER NOT NULL,
+                $COLUMN_ORDER_BUYER_USER_ID INTEGER NOT NULL,
                 $COLUMN_ORDER_STATUS TEXT NOT NULL,
                 $COLUMN_ORDER_CREATED_AT TEXT NOT NULL,
                 $COLUMN_ORDER_TOTAL_PRICE REAL NOT NULL,
-                FOREIGN KEY ($COLUMN_ORDER_USER_ID) REFERENCES $TABLE_USER($COLUMN_USER_ID) ON DELETE CASCADE
+                FOREIGN KEY ($COLUMN_ORDER_BUYER_USER_ID) REFERENCES $TABLE_USER($COLUMN_USER_ID) ON DELETE CASCADE
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_ORDER_ITEMS (
@@ -115,80 +121,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
             """.trimIndent()
         )
 
-        insertSampleData(db)
-    }
-
-    //HARDCODE DATA FOR DATABASE FOR NOW
-    private fun insertSampleData(db: SQLiteDatabase) {
-        db.execSQL("INSERT INTO $TABLE_USER ($COLUMN_USER_EMAIL, $COLUMN_USER_NAME, $COLUMN_USER_ROLE, $COLUMN_USER_CREATED_AT) VALUES ('seller@example.com', 'Test Seller', 'seller', '2024-01-01')")
-
-        db.execSQL("INSERT INTO $TABLE_CATEGORY ($COLUMN_CATEGORY_NAME) VALUES ('Electronics')")
-        db.execSQL("INSERT INTO $TABLE_CATEGORY ($COLUMN_CATEGORY_NAME) VALUES ('Fashion')")
-        db.execSQL("INSERT INTO $TABLE_CATEGORY ($COLUMN_CATEGORY_NAME) VALUES ('Home & Garden')")
-
-        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('Wireless Headphones', 99.99, 'Premium wireless headphones', 1, 1)")
-        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('USB-C Cable', 15.99, 'High-speed USB-C charging and data cable. Compatible with most modern devices.', 1, 1)")
-        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('T-Shirt', 29.99, 'Comfortable cotton T-shirt available in multiple colors and sizes.', 2, 1)")
-        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('Gaming Mouse', 39.99, 'Ergonomic wired gaming mouse with RGB.', 1, 1)")
-        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('Smart Watch', 129.99, 'Fitness and notifications on your wrist.', 1, 1)")
-    }
-
-    fun getFirstFiveProducts(): List<Product> {
-        val db = readableDatabase
-        val cursor = db.query(
-            TABLE_PRODUCTS,
-            null,
-            null,
-            null,
-            null,
-            null,
-            "$COLUMN_PRODUCT_ID ASC",
-            "5"
-        )
-        val products = mutableListOf<Product>()
-        while (cursor.moveToNext()) {
-            products.add(mapCursorToProduct(cursor))
-        }
-        cursor.close()
-        return products
-    }
-
-    fun searchFirstFiveProducts(searchQuery: String): List<Product> {
-        val db = readableDatabase
-        val cursor = db.query(
-            TABLE_PRODUCTS,
-            null,
-            "$COLUMN_PRODUCT_NAME LIKE ? OR $COLUMN_PRODUCT_DESCRIPTION LIKE ?",
-            arrayOf("%$searchQuery%", "%$searchQuery%"),
-            null,
-            null,
-            "$COLUMN_PRODUCT_ID ASC",
-            "5"
-        )
-        val products = mutableListOf<Product>()
-        while (cursor.moveToNext()) {
-            products.add(mapCursorToProduct(cursor))
-        }
-        cursor.close()
-        return products
-    }
-
-    private fun mapCursorToProduct(cursor: Cursor): Product {
-        val idIndex = cursor.getColumnIndex(COLUMN_PRODUCT_ID)
-        val nameIndex = cursor.getColumnIndex(COLUMN_PRODUCT_NAME)
-        val priceIndex = cursor.getColumnIndex(COLUMN_PRODUCT_PRICE)
-        val descIndex = cursor.getColumnIndex(COLUMN_PRODUCT_DESCRIPTION)
-        val categoryIdIndex = cursor.getColumnIndex(COLUMN_PRODUCT_CATEGORY_ID)
-        val userIdIndex = cursor.getColumnIndex(COLUMN_PRODUCT_USER_ID)
-
-        return Product(
-            id = cursor.getLong(idIndex),
-            name = cursor.getString(nameIndex),
-            price = cursor.getDouble(priceIndex),
-            description = cursor.getString(descIndex),
-            categoryId = cursor.getLong(categoryIdIndex),
-            userId = cursor.getLong(userIdIndex)
-        )
+        seedAdminAccount(db)
+        AuthStore.resetToAdminOnly(appContext)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -203,17 +137,88 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
         onCreate(db)
     }
 
+    fun resetAllData() {
+        val db = writableDatabase
+        db.beginTransaction()
+        try {
+            db.delete(TABLE_ORDER_ITEMS, null, null)
+            db.delete(TABLE_ORDERS, null, null)
+            db.delete(TABLE_CART_ITEM, null, null)
+            db.delete(TABLE_CART, null, null)
+            db.delete(TABLE_PRODUCTS, null, null)
+            db.delete(TABLE_CATEGORY, null, null)
+            db.delete(TABLE_ADDRESS, null, null)
+            db.delete(TABLE_USER, null, null)
+            db.execSQL("DELETE FROM sqlite_sequence")
+            seedAdminAccount(db)
+            AuthStore.resetToAdminOnly(appContext)
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+    fun getAdminUserId(): Long {
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_USER,
+            arrayOf(COLUMN_USER_ID),
+            "$COLUMN_USER_EMAIL = ? AND $COLUMN_USER_ROLE = ?",
+            arrayOf(DEFAULT_ADMIN_EMAIL, ROLE_ADMIN),
+            null,
+            null,
+            null,
+            "1"
+        )
+        val id = if (cursor.moveToFirst()) {
+            cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_USER_ID))
+        } else {
+            -1L
+        }
+        cursor.close()
+        return id
+    }
+
+    private fun seedAdminAccount(db: SQLiteDatabase) {
+        val existing = db.query(
+            TABLE_USER,
+            arrayOf(COLUMN_USER_ID),
+            "$COLUMN_USER_EMAIL = ?",
+            arrayOf(DEFAULT_ADMIN_EMAIL),
+            null,
+            null,
+            null,
+            "1"
+        )
+        val exists = existing.moveToFirst()
+        existing.close()
+        if (exists) {
+            return
+        }
+
+        val createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val values = ContentValues().apply {
+            put(COLUMN_USER_EMAIL, DEFAULT_ADMIN_EMAIL)
+            put(COLUMN_USER_NAME, DEFAULT_ADMIN_USERNAME)
+            put(COLUMN_USER_ROLE, ROLE_ADMIN)
+            put(COLUMN_USER_PROFILE_IMAGE, "ic_profile")
+            put(COLUMN_USER_CREATED_AT, createdAt)
+        }
+        db.insert(TABLE_USER, null, values)
+    }
+
     companion object {
         private const val DATABASE_NAME = "eflashshop.db"
-        private const val DATABASE_VERSION = 4
+        private const val DATABASE_VERSION = 6
 
         const val TABLE_USER = "user"
         const val COLUMN_USER_ID = "id"
         const val COLUMN_USER_EMAIL = "email"
         const val COLUMN_USER_NAME = "name"
         const val COLUMN_USER_ROLE = "role"
+        const val COLUMN_USER_PROFILE_IMAGE = "profile_image"
         const val COLUMN_USER_CREATED_AT = "createdAt"
-        
+
         const val TABLE_ADDRESS = "address"
         const val COLUMN_ADDRESS_ID = "id"
         const val COLUMN_ADDRESS_STREET = "street"
@@ -221,36 +226,40 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
         const val COLUMN_ADDRESS_STATE = "state"
         const val COLUMN_ADDRESS_ZIP = "zip"
         const val COLUMN_ADDRESS_USER_ID = "user_id"
-        
+
         const val TABLE_CATEGORY = "category"
         const val COLUMN_CATEGORY_ID = "id"
         const val COLUMN_CATEGORY_NAME = "name"
-        
+
         const val TABLE_PRODUCTS = "products"
         const val COLUMN_PRODUCT_ID = "id"
         const val COLUMN_PRODUCT_NAME = "name"
         const val COLUMN_PRODUCT_PRICE = "price"
         const val COLUMN_PRODUCT_DESCRIPTION = "description"
+        const val COLUMN_PRODUCT_IMAGE_REF = "image_ref"
         const val COLUMN_PRODUCT_CATEGORY_ID = "category_id"
-        const val COLUMN_PRODUCT_USER_ID = "user_id"
-        
+        const val COLUMN_PRODUCT_SELLER_USER_ID = "seller_user_id"
+        const val COLUMN_PRODUCT_IS_LISTED = "is_listed"
+        const val COLUMN_PRODUCT_USER_ID = COLUMN_PRODUCT_SELLER_USER_ID
+
         const val TABLE_CART = "cart"
         const val COLUMN_CART_ID = "id"
         const val COLUMN_CART_DATE_CREATED = "dateCreated"
-        
+
         const val TABLE_CART_ITEM = "cart_item"
         const val COLUMN_CART_ITEM_ID = "id"
         const val COLUMN_CART_ITEM_PRODUCT_ID = "product_id"
         const val COLUMN_CART_ITEM_CART_ID = "cart_id"
         const val COLUMN_CART_ITEM_QUANTITY = "quantity"
-        
+
         const val TABLE_ORDERS = "orders"
         const val COLUMN_ORDER_ID = "id"
-        const val COLUMN_ORDER_USER_ID = "user_id"
+        const val COLUMN_ORDER_BUYER_USER_ID = "buyer_user_id"
         const val COLUMN_ORDER_STATUS = "status"
         const val COLUMN_ORDER_CREATED_AT = "created_at"
         const val COLUMN_ORDER_TOTAL_PRICE = "total_price"
-        
+        const val COLUMN_ORDER_USER_ID = COLUMN_ORDER_BUYER_USER_ID
+
         const val TABLE_ORDER_ITEMS = "order_items"
         const val COLUMN_ORDER_ITEM_ID = "id"
         const val COLUMN_ORDER_ITEM_ORDER_ID = "order_id"
@@ -258,5 +267,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
         const val COLUMN_ORDER_ITEM_UNIT_PRICE = "unit_price"
         const val COLUMN_ORDER_ITEM_QUANTITY = "quantity"
         const val COLUMN_ORDER_ITEM_TOTAL_PRICE = "total_price"
+
+        const val ROLE_ADMIN = "admin"
+        const val DEFAULT_ADMIN_USERNAME = "admin"
+        const val DEFAULT_ADMIN_EMAIL = "admin@eflashshop.local"
     }
 }

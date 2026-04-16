@@ -39,6 +39,7 @@ class CartActivity : AppCompatActivity() {
         val btnHome = findViewById<ImageButton>(R.id.btnHome)
         val btnSearch = findViewById<ImageButton>(R.id.btnSearch)
         val btnProfile = findViewById<ImageButton>(R.id.btnProfile)
+        val btnAddProduct = findViewById<ImageButton>(R.id.btnAddProduct)
         val btnCart = findViewById<ImageButton>(R.id.btnCart)
         cartBar = findViewById(R.id.cartBar)
         tvCartBadge = findViewById(R.id.tvCartBadge)
@@ -63,12 +64,15 @@ class CartActivity : AppCompatActivity() {
         }
 
         btnSearch.setOnClickListener {
-            startActivity(Intent(this, HomePageActivity::class.java))
-            finish()
+            startActivity(Intent(this, SearchResultsActivity::class.java))
         }
 
         btnProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
+        }
+
+        btnAddProduct.setOnClickListener {
+            startActivity(Intent(this, SellProductActivity::class.java))
         }
 
         btnCart.setOnClickListener {

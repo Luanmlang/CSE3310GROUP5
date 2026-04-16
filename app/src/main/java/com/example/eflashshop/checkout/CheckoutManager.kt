@@ -65,14 +65,14 @@ class CheckoutManager(private val dbHelper: DatabaseHelper) {
         )
     }
 
-    fun createOrderFromCart(userId: Long, cart: Cart): CheckoutResult? {
+    fun createOrderFromCart(buyerUserId: Long, cart: Cart): CheckoutResult? {
         if (cart.items.isEmpty()) return null
 
         val db = dbHelper.writableDatabase
         val createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
         val orderValues = ContentValues().apply {
-            put(DatabaseHelper.COLUMN_ORDER_USER_ID, userId)
+            put(DatabaseHelper.COLUMN_ORDER_BUYER_USER_ID, buyerUserId)
             put(DatabaseHelper.COLUMN_ORDER_STATUS, Status.COMPLETED.name)
             put(DatabaseHelper.COLUMN_ORDER_CREATED_AT, createdAt)
             put(DatabaseHelper.COLUMN_ORDER_TOTAL_PRICE, cart.getTotal())
@@ -104,12 +104,52 @@ class CheckoutManager(private val dbHelper: DatabaseHelper) {
 
         val order = Order(
             id = orderId,
-            userId = userId,
+            buyerUserId = buyerUserId,
             status = Status.COMPLETED,
             createdAt = createdAt,
             totalPrice = cart.getTotal()
         )
         return CheckoutResult(order, orderItems)
+    }
+
+    fun getOrCreateBuyerUserId(username: String): Long {
+        val normalizedUsername = username.trim().ifBlank { "guest" }
+        val db = dbHelper.writableDatabase
+        val existingUserCursor = db.query(
+            DatabaseHelper.TABLE_USER,
+            arrayOf(DatabaseHelper.COLUMN_USER_ID),
+            "${DatabaseHelper.COLUMN_USER_NAME} = ?",
+            arrayOf(normalizedUsername),
+            null,
+            null,
+            null,
+            "1"
+        )
+
+        val existingUserId = if (existingUserCursor.moveToFirst()) {
+            existingUserCursor.getLong(existingUserCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ID))
+        } else {
+            -1L
+        }
+        existingUserCursor.close()
+        if (existingUserId > 0) {
+            return existingUserId
+        }
+
+        val createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+        val email = if (normalizedUsername.contains("@")) normalizedUsername else "$normalizedUsername@shopmail.com"
+        val userValues = ContentValues().apply {
+            put(DatabaseHelper.COLUMN_USER_EMAIL, email)
+            put(DatabaseHelper.COLUMN_USER_NAME, normalizedUsername)
+            put(
+                DatabaseHelper.COLUMN_USER_ROLE,
+                if (normalizedUsername == AuthStore.ADMIN_USERNAME) AuthStore.ROLE_ADMIN else AuthStore.ROLE_BUYER
+            )
+            put(DatabaseHelper.COLUMN_USER_PROFILE_IMAGE, "ic_profile")
+            put(DatabaseHelper.COLUMN_USER_CREATED_AT, createdAt)
+        }
+        val insertedUserId = db.insert(DatabaseHelper.TABLE_USER, null, userValues)
+        return if (insertedUserId > 0) insertedUserId else dbHelper.getAdminUserId().takeIf { it > 0 } ?: 1L
     }
 
     private fun getCartItems(cartId: Long): MutableList<CartItem> {

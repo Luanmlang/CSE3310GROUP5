@@ -13,13 +13,16 @@
         android:theme="@style/Theme.EflashShop">
         
         <activity
-            android:name=".activity.LoginActivity"
+            android:name=".activity.LandingActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.LoginActivity"
+            android:exported="false" />
         <activity
             android:name=".activity.RegisterActivity"
             android:exported="false" />
@@ -28,6 +31,15 @@
             android:exported="false" />
         <activity
             android:name=".activity.HomePageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.SearchResultsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.SellProductActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.AdminProductManagementActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
