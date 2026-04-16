@@ -14,7 +14,15 @@ data class Cart(
     }
 
     fun removeItem(itemId: Long) {
-        items.removeAll { it.id == itemId }
+        val item = items.find { it.id == itemId }
+        if (item != null) {
+            if (item.quantity > 1) {
+                val index = items.indexOf(item)
+                items[index] = item.copy(quantity = item.quantity - 1)
+            } else {
+                items.remove(item)
+            }
+        }
     }
 
     fun getTotal(): Double {
