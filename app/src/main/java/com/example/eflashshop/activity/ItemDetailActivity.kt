@@ -1,14 +1,16 @@
 package com.example.eflashshop.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.eflashshop.DatabaseHelper
 import com.example.eflashshop.R
+import com.example.eflashshop.activity.CartActivity
 import com.example.eflashshop.model.ProductViewModel
 import com.example.eflashshop.repository.ProductRepository
 import com.example.eflashshop.repository.CartRepository
@@ -25,8 +27,10 @@ class ItemDetailActivity : AppCompatActivity() {
     private lateinit var btnHome: ImageButton
     private lateinit var btnSearch: ImageButton
     private lateinit var btnProfile: ImageButton
+    private lateinit var cartBar: View
     private lateinit var btnCart: ImageButton
     private lateinit var tvCartBadge: TextView
+    private lateinit var tvCartSummary: TextView
     private lateinit var btnIncrement: Button
     private lateinit var btnDecrement: Button
     private lateinit var etQuantity: EditText
@@ -42,7 +46,6 @@ class ItemDetailActivity : AppCompatActivity() {
         val cartRepository = CartRepository(dbHelper)
 
         productViewModel = ProductViewModel(productRepository, cartRepository)
-        productViewModel.deleteCartItem();
 
         initViews()
         observeViewModel()
@@ -65,8 +68,10 @@ class ItemDetailActivity : AppCompatActivity() {
         btnHome = findViewById(R.id.btnHome)
         btnSearch = findViewById(R.id.btnSearch)
         btnProfile = findViewById(R.id.btnProfile)
+        cartBar = findViewById(R.id.cartBar)
         btnCart = findViewById(R.id.btnCart)
         tvCartBadge = findViewById(R.id.tvCartBadge)
+        tvCartSummary = findViewById(R.id.tvCartSummary)
         btnIncrement = findViewById(R.id.btnIncrement)
         btnDecrement = findViewById(R.id.btnDecrement)
         etQuantity = findViewById(R.id.etQuantity)
@@ -88,13 +93,12 @@ class ItemDetailActivity : AppCompatActivity() {
         }
 
         productViewModel.cartItemCount.observe(this) { count ->
-            tvCartBadge.text = count.toString()
-            tvCartBadge.visibility = if (count > 0) android.view.View.VISIBLE else android.view.View.GONE
+            tvCartBadge.text = if (count == 1) "1 item" else "$count items"
+            tvCartSummary.text = "View Cart"
         }
 
         productViewModel.showCartBar.observe(this) { show ->
-            val cartBar = findViewById<FrameLayout>(R.id.cartBar)
-            cartBar.visibility = if (show) android.view.View.VISIBLE else android.view.View.GONE
+            cartBar.visibility = if (show) View.VISIBLE else View.GONE
         }
     }
 
@@ -103,6 +107,34 @@ class ItemDetailActivity : AppCompatActivity() {
             productViewModel.initializeCart()
             val quantity = etQuantity.text.toString().toIntOrNull() ?: 1
             productViewModel.addToCart(productId, quantity)
+        }
+
+        btnBuyNow.setOnClickListener {
+            productViewModel.initializeCart()
+            val quantity = etQuantity.text.toString().toIntOrNull() ?: 1
+            productViewModel.addToCart(productId, quantity)
+            startActivity(Intent(this, CartActivity::class.java))
+        }
+
+        btnHome.setOnClickListener {
+            startActivity(Intent(this, HomePageActivity::class.java))
+            finish()
+        }
+
+        btnSearch.setOnClickListener {
+            startActivity(Intent(this, HomePageActivity::class.java))
+            finish()
+        }
+
+        btnProfile.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
+
+        btnCart.setOnClickListener {
+            startActivity(Intent(this, CartActivity::class.java))
+        }
+        cartBar.setOnClickListener {
+            startActivity(Intent(this, CartActivity::class.java))
         }
 
         btnBack.setOnClickListener {

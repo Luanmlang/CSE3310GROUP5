@@ -1,10 +1,13 @@
 package com.example.eflashshop
 
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.eflashshop.entities.Product
 
-class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, DATABASE_NAME, null, DATABASE_VERSION) {
+    val appContext: Context = context.applicationContext
     
     override fun onConfigure(db: SQLiteDatabase) {
         super.onConfigure(db)
@@ -126,6 +129,66 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('Wireless Headphones', 99.99, 'Premium wireless headphones', 1, 1)")
         db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('USB-C Cable', 15.99, 'High-speed USB-C charging and data cable. Compatible with most modern devices.', 1, 1)")
         db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('T-Shirt', 29.99, 'Comfortable cotton T-shirt available in multiple colors and sizes.', 2, 1)")
+        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('Gaming Mouse', 39.99, 'Ergonomic wired gaming mouse with RGB.', 1, 1)")
+        db.execSQL("INSERT INTO $TABLE_PRODUCTS ($COLUMN_PRODUCT_NAME, $COLUMN_PRODUCT_PRICE, $COLUMN_PRODUCT_DESCRIPTION, $COLUMN_PRODUCT_CATEGORY_ID, $COLUMN_PRODUCT_USER_ID) VALUES ('Smart Watch', 129.99, 'Fitness and notifications on your wrist.', 1, 1)")
+    }
+
+    fun getFirstFiveProducts(): List<Product> {
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_PRODUCTS,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "$COLUMN_PRODUCT_ID ASC",
+            "5"
+        )
+        val products = mutableListOf<Product>()
+        while (cursor.moveToNext()) {
+            products.add(mapCursorToProduct(cursor))
+        }
+        cursor.close()
+        return products
+    }
+
+    fun searchFirstFiveProducts(searchQuery: String): List<Product> {
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_PRODUCTS,
+            null,
+            "$COLUMN_PRODUCT_NAME LIKE ? OR $COLUMN_PRODUCT_DESCRIPTION LIKE ?",
+            arrayOf("%$searchQuery%", "%$searchQuery%"),
+            null,
+            null,
+            "$COLUMN_PRODUCT_ID ASC",
+            "5"
+        )
+        val products = mutableListOf<Product>()
+        while (cursor.moveToNext()) {
+            products.add(mapCursorToProduct(cursor))
+        }
+        cursor.close()
+        return products
+    }
+
+    private fun mapCursorToProduct(cursor: Cursor): Product {
+        val idIndex = cursor.getColumnIndex(COLUMN_PRODUCT_ID)
+        val nameIndex = cursor.getColumnIndex(COLUMN_PRODUCT_NAME)
+        val priceIndex = cursor.getColumnIndex(COLUMN_PRODUCT_PRICE)
+        val descIndex = cursor.getColumnIndex(COLUMN_PRODUCT_DESCRIPTION)
+        val categoryIdIndex = cursor.getColumnIndex(COLUMN_PRODUCT_CATEGORY_ID)
+        val userIdIndex = cursor.getColumnIndex(COLUMN_PRODUCT_USER_ID)
+
+        return Product(
+            id = cursor.getLong(idIndex),
+            name = cursor.getString(nameIndex),
+            price = cursor.getDouble(priceIndex),
+            description = cursor.getString(descIndex),
+            categoryId = cursor.getLong(categoryIdIndex),
+            userId = cursor.getLong(userIdIndex)
+        )
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {

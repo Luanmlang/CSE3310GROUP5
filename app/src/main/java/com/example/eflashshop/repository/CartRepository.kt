@@ -2,6 +2,7 @@ package com.example.eflashshop.repository
 
 import android.content.ContentValues
 import com.example.eflashshop.DatabaseHelper
+import com.example.eflashshop.login.AuthStore
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -55,35 +56,50 @@ class CartRepository(private val dbHelper: DatabaseHelper) {
 
     fun getOrCreateCart(): Long {
         return try {
-            val db = dbHelper.readableDatabase
-            val cursor = db.query(
-                DatabaseHelper.TABLE_CART,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "${DatabaseHelper.COLUMN_CART_ID} DESC",
-                "1"
-            )
-
-            val cartId = if (cursor.moveToFirst()) {
-                val idIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_CART_ID)
-                cursor.getLong(idIndex)
+            val mappedCartId = AuthStore.getActiveCartId(dbHelper.appContext)
+            if (mappedCartId != null && cartExists(mappedCartId)) {
+                mappedCartId
             } else {
-                createCart()
+                val newCartId = createCart()
+                AuthStore.setActiveCartId(dbHelper.appContext, newCartId)
+                newCartId
             }
-
-            cursor.close()
-            cartId
         } catch (e: Exception) {
-            createCart()
+            val newCartId = createCart()
+            AuthStore.setActiveCartId(dbHelper.appContext, newCartId)
+            newCartId
         }
     }
 
     fun deleteAllCarts() {
+        val cartId = AuthStore.getActiveCartId(dbHelper.appContext) ?: return
         val db = dbHelper.writableDatabase
-        db.delete(DatabaseHelper.TABLE_CART_ITEM, null, null)
-        db.delete(DatabaseHelper.TABLE_CART, null, null)
+        db.delete(
+            DatabaseHelper.TABLE_CART_ITEM,
+            "${DatabaseHelper.COLUMN_CART_ITEM_CART_ID} = ?",
+            arrayOf(cartId.toString())
+        )
+        db.delete(
+            DatabaseHelper.TABLE_CART,
+            "${DatabaseHelper.COLUMN_CART_ID} = ?",
+            arrayOf(cartId.toString())
+        )
+        AuthStore.clearActiveCartForCurrentUser(dbHelper.appContext)
+    }
+
+    private fun cartExists(cartId: Long): Boolean {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(
+            DatabaseHelper.TABLE_CART,
+            arrayOf(DatabaseHelper.COLUMN_CART_ID),
+            "${DatabaseHelper.COLUMN_CART_ID} = ?",
+            arrayOf(cartId.toString()),
+            null,
+            null,
+            null
+        )
+        val exists = cursor.moveToFirst()
+        cursor.close()
+        return exists
     }
 }
