@@ -14,6 +14,7 @@ import com.example.eflashshop.R
 import com.example.eflashshop.checkout.CheckoutManager
 import com.example.eflashshop.entities.Cart
 import com.example.eflashshop.entities.Payment
+import com.example.eflashshop.login.AuthStore
 
 class CheckoutActivity : AppCompatActivity() {
     private lateinit var checkoutManager: CheckoutManager
@@ -62,8 +63,7 @@ class CheckoutActivity : AppCompatActivity() {
             finish()
         }
         btnSearch.setOnClickListener {
-            startActivity(Intent(this, HomePageActivity::class.java))
-            finish()
+            startActivity(Intent(this, SearchResultsActivity::class.java))
         }
         btnProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
@@ -119,7 +119,9 @@ class CheckoutActivity : AppCompatActivity() {
             val success = payment.processPayment()
 
             if (success) {
-                val checkoutResult = checkoutManager.createOrderFromCart(userId = 1, cart = activeCart)
+                val buyerUsername = AuthStore.getCurrentUser(this) ?: "guest"
+                val buyerUserId = checkoutManager.getOrCreateBuyerUserId(buyerUsername)
+                val checkoutResult = checkoutManager.createOrderFromCart(buyerUserId = buyerUserId, cart = activeCart)
                 if (checkoutResult == null) {
                     Toast.makeText(this, "Unable to create order", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener

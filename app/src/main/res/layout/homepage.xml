@@ -3,254 +3,197 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/surface_background">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/cartBar"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="15dp">
+            android:padding="16dp">
 
             <TextView
-                android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="eFlashShop"
-                android:textSize="28sp"
+                android:text="Discover"
+                android:textColor="@color/text_secondary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Everyday Picks"
+                android:textColor="@color/text_primary"
+                android:textSize="30sp"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/btnLogout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginBottom="10dp"
-                android:text="Logout" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/search_bar"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Click here to search!"
-                    android:padding="15dp" />
-
-                <Button
-                    android:id="@+id/search_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Search" />
-            </LinearLayout>
-
             <TextView
-                android:id="@+id/new_items_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:text="New Items!"
+                android:layout_marginTop="18dp"
+                android:text="Featured Product"
+                android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/product_row1"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/heroProductCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="5dp">
-
-                <ImageButton
-                    android:id="@+id/product_image1"
-                    android:layout_width="200dp"
-                    android:layout_height="100dp"
-                    android:contentDescription="Product image"
-                    android:scaleType="centerCrop" />
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/card_stroke"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="14dp">
 
-                    <TextView
-                        android:id="@+id/product_name1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="text"
-                        android:textSize="15sp" />
+                    <ImageView
+                        android:id="@+id/heroProductImage"
+                        android:layout_width="132dp"
+                        android:layout_height="132dp"
+                        android:adjustViewBounds="true"
+                        android:background="@drawable/category_image_bg"
+                        android:padding="12dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/image_placeholder" />
 
-                    <TextView
-                        android:id="@+id/product_price1"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="price"
-                        android:textSize="10sp" />
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/heroBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/hero_badge_bg"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:text="Top Pick"
+                            android:textColor="@android:color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/heroProductName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:maxLines="2"
+                            android:text="Product name"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/heroProductPrice"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="$0.00"
+                            android:textColor="@color/text_primary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/heroProductArrow"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginStart="10dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/text_secondary" />
                 </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/product_row2"
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="More to Explore"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/supportCard1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="5dp">
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/card_stroke"
+                app:strokeWidth="1dp">
 
-                <ImageButton
-                    android:id="@+id/product_image2"
-                    android:layout_width="200dp"
-                    android:layout_height="100dp"
-                    android:contentDescription="Product image"
-                    android:scaleType="centerCrop" />
+                <include
+                    android:id="@+id/supportCardContent1"
+                    layout="@layout/view_home_support_card_content" />
+            </com.google.android.material.card.MaterialCardView>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/product_name2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="text"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/product_price2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="price"
-                        android:textSize="10sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/product_row3"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/supportCard2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="5dp">
+                android:layout_marginTop="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/card_stroke"
+                app:strokeWidth="1dp">
 
-                <ImageButton
-                    android:id="@+id/product_image3"
-                    android:layout_width="200dp"
-                    android:layout_height="100dp"
-                    android:contentDescription="Product image"
-                    android:scaleType="centerCrop" />
+                <include
+                    android:id="@+id/supportCardContent2"
+                    layout="@layout/view_home_support_card_content" />
+            </com.google.android.material.card.MaterialCardView>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/product_name3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="text"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/product_price3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="price"
-                        android:textSize="10sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/product_row4"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/supportCard3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="5dp">
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@android:color/white"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/card_stroke"
+                app:strokeWidth="1dp">
 
-                <ImageButton
-                    android:id="@+id/product_image4"
-                    android:layout_width="200dp"
-                    android:layout_height="100dp"
-                    android:contentDescription="Product image"
-                    android:scaleType="centerCrop" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/product_name4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="text"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/product_price4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="price"
-                        android:textSize="10sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/product_row5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="5dp">
-
-                <ImageButton
-                    android:id="@+id/product_image5"
-                    android:layout_width="200dp"
-                    android:layout_height="100dp"
-                    android:contentDescription="Product image5"
-                    android:scaleType="centerCrop" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/product_name5"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="text"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/product_price5"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="price"
-                        android:textSize="10sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-
+                <include
+                    android:id="@+id/supportCardContent3"
+                    layout="@layout/view_home_support_card_content" />
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/navBar"
@@ -300,17 +243,36 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/addBar"
+        android:layout_width="46dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/black_circle_button"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="@id/navBar"
+        app:layout_constraintStart_toEndOf="@id/navBar">
+
+        <ImageButton
+            android:id="@+id/btnAddProduct"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Add product"
+            android:padding="8dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_add_plus" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/cartBar"
-        android:layout_width="0dp"
-        android:layout_height="54dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_width="224dp"
+        android:layout_height="47dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/cart_checkout_bar_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/navBar"
         app:layout_constraintEnd_toEndOf="parent"
@@ -318,33 +280,33 @@
 
         <ImageButton
             android:id="@+id/btnCart"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:background="@android:color/transparent"
             android:contentDescription="Cart"
             android:padding="0dp"
             android:scaleType="fitCenter"
             android:src="@drawable/ic_cart"
-            android:tint="@android:color/white" />
+            app:tint="@android:color/white" />
 
         <TextView
             android:id="@+id/tvCartSummary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
-            android:text="View Cart"
+            android:text="Cart"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvCartBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0 items"
+            android:text="0"
             android:textColor="@android:color/white"
-            android:textSize="14sp" />
+            android:textSize="13sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

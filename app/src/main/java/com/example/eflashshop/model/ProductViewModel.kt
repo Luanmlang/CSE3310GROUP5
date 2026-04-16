@@ -3,6 +3,7 @@ package com.example.eflashshop.model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.eflashshop.dto.ProductDTO
 import com.example.eflashshop.entities.Product
 import com.example.eflashshop.repository.CartRepository
 import com.example.eflashshop.repository.ProductRepository
@@ -15,8 +16,20 @@ class ProductViewModel(
     private val _product = MutableLiveData<Product?>()
     val product: LiveData<Product?> = _product
 
+    private val _productDTO = MutableLiveData<ProductDTO?>()
+    val productDTO: LiveData<ProductDTO?> = _productDTO
+
     private val _categoryName = MutableLiveData<String?>()
     val categoryName: LiveData<String?> = _categoryName
+
+    private val _sellerName = MutableLiveData<String?>()
+    val sellerName: LiveData<String?> = _sellerName
+
+    private val _sellerEmail = MutableLiveData<String?>()
+    val sellerEmail: LiveData<String?> = _sellerEmail
+
+    private val _sellerImageRef = MutableLiveData<String?>()
+    val sellerImageRef: LiveData<String?> = _sellerImageRef
 
     private val _cartItemCount = MutableLiveData<Int>(0)
     val cartItemCount: LiveData<Int> = _cartItemCount
@@ -35,10 +48,14 @@ class ProductViewModel(
     }
 
     fun loadProductDetails(productId: Long) {
-        val product = productRepository.getProductById(productId)
-        if (product != null) {
-            _product.value = product
-            loadCategoryName(product.categoryId)
+        val productDetail = productRepository.getProductDetailById(productId)
+        if (productDetail != null) {
+            _productDTO.value = productDetail
+            _product.value = productDetail.product
+            _categoryName.value = productDetail.categoryName
+            _sellerName.value = productDetail.sellerDTO?.name
+            _sellerEmail.value = productDetail.sellerDTO?.email
+            _sellerImageRef.value = productDetail.sellerDTO?.profileImageRef
         } else {
             _toastMessage.value = "Product details not found"
         }
@@ -46,11 +63,6 @@ class ProductViewModel(
 
     fun deleteCartItem() {
         cartRepository.deleteAllCarts();
-    }
-
-    private fun loadCategoryName(categoryId: Long) {
-        val categoryName = productRepository.getCategoryNameById(categoryId)
-        _categoryName.value = categoryName
     }
 
     fun addToCart(productId: Long, quantity: Int) {

@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="surface_background">#F5F6FA</color>
+    <color name="text_primary">#151619</color>
+    <color name="text_secondary">#6A6F78</color>
+    <color name="card_stroke">#E8EAF0</color>
+    <color name="chip_dark">#1F2024</color>
 </resources>
