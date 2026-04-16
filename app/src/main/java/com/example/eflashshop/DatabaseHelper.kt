@@ -1,16 +1,18 @@
 package com.example.eflashshop
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.eflashshop.entities.Product
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-    
+
     override fun onConfigure(db: SQLiteDatabase) {
         super.onConfigure(db)
         db.setForeignKeyConstraintsEnabled(true)
     }
-    
+
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(
             """
@@ -23,7 +25,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_ADDRESS (
@@ -37,7 +39,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_CATEGORY (
@@ -46,7 +48,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_PRODUCTS (
@@ -54,6 +56,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
                 $COLUMN_PRODUCT_NAME TEXT NOT NULL,
                 $COLUMN_PRODUCT_PRICE REAL NOT NULL,
                 $COLUMN_PRODUCT_DESCRIPTION TEXT,
+                $COLUMN_PRODUCT_IMAGE_NAME TEXT NOT NULL,
                 $COLUMN_PRODUCT_CATEGORY_ID INTEGER NOT NULL,
                 $COLUMN_PRODUCT_USER_ID INTEGER NOT NULL,
                 FOREIGN KEY ($COLUMN_PRODUCT_CATEGORY_ID) REFERENCES $TABLE_CATEGORY($COLUMN_CATEGORY_ID) ON DELETE CASCADE,
@@ -61,7 +64,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_CART (
@@ -70,7 +73,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_CART_ITEM (
@@ -83,7 +86,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_ORDERS (
@@ -96,7 +99,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             )
             """.trimIndent()
         )
-        
+
         db.execSQL(
             """
             CREATE TABLE $TABLE_ORDER_ITEMS (
@@ -125,9 +128,211 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         onCreate(db)
     }
 
+    fun insertUser(email: String, name: String, role: String, createdAt: String): Long {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_USER_EMAIL, email)
+            put(COLUMN_USER_NAME, name)
+            put(COLUMN_USER_ROLE, role)
+            put(COLUMN_USER_CREATED_AT, createdAt)
+        }
+        return db.insert(TABLE_USER, null, values)
+    }
+
+    fun insertCategory(name: String): Long {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_CATEGORY_NAME, name)
+        }
+        return db.insert(TABLE_CATEGORY, null, values)
+    }
+
+    fun insertProduct(product: Product): Long {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put(COLUMN_PRODUCT_NAME, product.name)
+            put(COLUMN_PRODUCT_PRICE, product.price)
+            put(COLUMN_PRODUCT_DESCRIPTION, product.description)
+            put(COLUMN_PRODUCT_IMAGE_NAME, product.imageName)
+            put(COLUMN_PRODUCT_CATEGORY_ID, product.categoryId)
+            put(COLUMN_PRODUCT_USER_ID, product.userId)
+        }
+        return db.insert(TABLE_PRODUCTS, null, values)
+    }
+
+    fun getProductCount(): Int {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT COUNT(*) FROM $TABLE_PRODUCTS", null)
+
+        var count = 0
+        cursor.use {
+            if (it.moveToFirst()) {
+                count = it.getInt(0)
+            }
+        }
+        return count
+    }
+
+    fun insertSampleDataIfNeeded() {
+        if (getProductCount() > 0) return
+
+        val userId = insertUser(
+            email = "demo@eflashshop.com",
+            name = "Demo Seller",
+            role = "seller",
+            createdAt = "2026-04-15"
+        )
+
+        val categoryId = insertCategory("Electronics")
+
+        insertProduct(
+            Product(
+                id = 0,
+                name = "Wireless Headphones",
+                price = 59.99,
+                description = "Noise-cancelling headphones",
+                categoryId = categoryId,
+                userId = userId,
+                imageName = "headphones"
+            )
+        )
+
+        insertProduct(
+            Product(
+                id = 0,
+                name = "Smart Watch",
+                price = 89.99,
+                description = "Fitness and notifications",
+                categoryId = categoryId,
+                userId = userId,
+                imageName = "watch"
+            )
+        )
+
+        insertProduct(
+            Product(
+                id = 0,
+                name = "Gaming Mouse",
+                price = 29.99,
+                description = "RGB gaming mouse",
+                categoryId = categoryId,
+                userId = userId,
+                imageName = "mouse"
+            )
+        )
+
+        insertProduct(
+            Product(
+                id = 0,
+                name = "Bluetooth Speaker",
+                price = 39.99,
+                description = "Portable speaker",
+                categoryId = categoryId,
+                userId = userId,
+                imageName = "speaker"
+            )
+        )
+
+        insertProduct(
+            Product(
+                id = 0,
+                name = "Laptop Stand",
+                price = 24.99,
+                description = "Adjustable aluminum stand",
+                categoryId = categoryId,
+                userId = userId,
+                imageName = "stand"
+            )
+        )
+    }
+
+    fun getFirstFiveProducts(): List<Product> {
+        val products = mutableListOf<Product>()
+        val db = readableDatabase
+
+        val cursor = db.query(
+            TABLE_PRODUCTS,
+            arrayOf(
+                COLUMN_PRODUCT_ID,
+                COLUMN_PRODUCT_NAME,
+                COLUMN_PRODUCT_PRICE,
+                COLUMN_PRODUCT_DESCRIPTION,
+                COLUMN_PRODUCT_CATEGORY_ID,
+                COLUMN_PRODUCT_USER_ID,
+                COLUMN_PRODUCT_IMAGE_NAME
+            ),
+            null,
+            null,
+            null,
+            null,
+            "$COLUMN_PRODUCT_ID ASC",
+            "5"
+        )
+
+        cursor.use {
+            while (it.moveToNext()) {
+                products.add(
+                    Product(
+                        id = it.getInt(it.getColumnIndexOrThrow(COLUMN_PRODUCT_ID)),
+                        name = it.getString(it.getColumnIndexOrThrow(COLUMN_PRODUCT_NAME)),
+                        price = it.getDouble(it.getColumnIndexOrThrow(COLUMN_PRODUCT_PRICE)),
+                        description = it.getString(it.getColumnIndexOrThrow(COLUMN_PRODUCT_DESCRIPTION)),
+                        categoryId = it.getLong(it.getColumnIndexOrThrow(COLUMN_PRODUCT_CATEGORY_ID)),
+                        userId = it.getLong(it.getColumnIndexOrThrow(COLUMN_PRODUCT_USER_ID)),
+                        imageName = it.getString(it.getColumnIndexOrThrow(COLUMN_PRODUCT_IMAGE_NAME))
+                    )
+                )
+            }
+        }
+
+        return products
+    }
+
+    fun searchFirstFiveProducts(query: String): List<Product> {
+        val products = mutableListOf<Product>()
+        val db = readableDatabase
+
+        val cursor = db.query(
+            TABLE_PRODUCTS,
+            arrayOf(
+                COLUMN_PRODUCT_ID,
+                COLUMN_PRODUCT_NAME,
+                COLUMN_PRODUCT_PRICE,
+                COLUMN_PRODUCT_DESCRIPTION,
+                COLUMN_PRODUCT_CATEGORY_ID,
+                COLUMN_PRODUCT_USER_ID,
+                COLUMN_PRODUCT_IMAGE_NAME
+            ),
+            "$COLUMN_PRODUCT_NAME LIKE ?",
+            arrayOf("%$query%"),
+            null,
+            null,
+            "$COLUMN_PRODUCT_ID ASC",
+            "5"
+        )
+
+        cursor.use {
+            while (it.moveToNext()) {
+                products.add(
+                    Product(
+                        id = it.getInt(it.getColumnIndexOrThrow(COLUMN_PRODUCT_ID)),
+                        name = it.getString(it.getColumnIndexOrThrow(COLUMN_PRODUCT_NAME)),
+                        price = it.getDouble(it.getColumnIndexOrThrow(COLUMN_PRODUCT_PRICE)),
+                        description = it.getString(it.getColumnIndexOrThrow(COLUMN_PRODUCT_DESCRIPTION)),
+                        categoryId = it.getLong(it.getColumnIndexOrThrow(COLUMN_PRODUCT_CATEGORY_ID)),
+                        userId = it.getLong(it.getColumnIndexOrThrow(COLUMN_PRODUCT_USER_ID)),
+                        imageName = it.getString(it.getColumnIndexOrThrow(COLUMN_PRODUCT_IMAGE_NAME))
+                    )
+                )
+            }
+        }
+
+        return products
+    }
+
     companion object {
         private const val DATABASE_NAME = "eflashshop.db"
-        private const val DATABASE_VERSION = 1
+        private const val DATABASE_VERSION = 2
 
         const val TABLE_USER = "user"
         const val COLUMN_USER_ID = "id"
@@ -135,7 +340,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val COLUMN_USER_NAME = "name"
         const val COLUMN_USER_ROLE = "role"
         const val COLUMN_USER_CREATED_AT = "createdAt"
-        
+
         const val TABLE_ADDRESS = "address"
         const val COLUMN_ADDRESS_ID = "id"
         const val COLUMN_ADDRESS_STREET = "street"
@@ -143,36 +348,37 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val COLUMN_ADDRESS_STATE = "state"
         const val COLUMN_ADDRESS_ZIP = "zip"
         const val COLUMN_ADDRESS_USER_ID = "user_id"
-        
+
         const val TABLE_CATEGORY = "category"
         const val COLUMN_CATEGORY_ID = "id"
         const val COLUMN_CATEGORY_NAME = "name"
-        
+
         const val TABLE_PRODUCTS = "products"
         const val COLUMN_PRODUCT_ID = "id"
         const val COLUMN_PRODUCT_NAME = "name"
         const val COLUMN_PRODUCT_PRICE = "price"
         const val COLUMN_PRODUCT_DESCRIPTION = "description"
+        const val COLUMN_PRODUCT_IMAGE_NAME = "image_name"
         const val COLUMN_PRODUCT_CATEGORY_ID = "category_id"
         const val COLUMN_PRODUCT_USER_ID = "user_id"
-        
+
         const val TABLE_CART = "cart"
         const val COLUMN_CART_ID = "id"
         const val COLUMN_CART_DATE_CREATED = "dateCreated"
-        
+
         const val TABLE_CART_ITEM = "cart_item"
         const val COLUMN_CART_ITEM_ID = "id"
         const val COLUMN_CART_ITEM_PRODUCT_ID = "product_id"
         const val COLUMN_CART_ITEM_CART_ID = "cart_id"
         const val COLUMN_CART_ITEM_QUANTITY = "quantity"
-        
+
         const val TABLE_ORDERS = "orders"
         const val COLUMN_ORDER_ID = "id"
         const val COLUMN_ORDER_USER_ID = "user_id"
         const val COLUMN_ORDER_STATUS = "status"
         const val COLUMN_ORDER_CREATED_AT = "created_at"
         const val COLUMN_ORDER_TOTAL_PRICE = "total_price"
-        
+
         const val TABLE_ORDER_ITEMS = "order_items"
         const val COLUMN_ORDER_ITEM_ID = "id"
         const val COLUMN_ORDER_ITEM_ORDER_ID = "order_id"
