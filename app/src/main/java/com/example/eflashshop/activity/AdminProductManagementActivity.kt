@@ -1,8 +1,8 @@
 package com.example.eflashshop.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -17,12 +17,6 @@ import com.example.eflashshop.repository.AdminProductRepository
 class AdminProductManagementActivity : AppCompatActivity() {
     private lateinit var adminProductModel: AdminProductModel
     private lateinit var adminProductAdapter: AdminProductAdapter
-
-    private lateinit var etProductName: EditText
-    private lateinit var etProductPrice: EditText
-    private lateinit var etCategoryName: EditText
-    private lateinit var etImageRef: EditText
-    private lateinit var etProductDescription: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,11 +51,6 @@ class AdminProductManagementActivity : AppCompatActivity() {
             }
         )
 
-        etProductName = findViewById(R.id.etManagedProductName)
-        etProductPrice = findViewById(R.id.etManagedProductPrice)
-        etCategoryName = findViewById(R.id.etManagedProductCategory)
-        etImageRef = findViewById(R.id.etManagedProductImageRef)
-        etProductDescription = findViewById(R.id.etManagedProductDescription)
         val btnAddProduct = findViewById<Button>(R.id.btnAddManagedProduct)
         val btnResetDatabase = findViewById<Button>(R.id.btnResetDatabase)
         val btnBack = findViewById<ImageButton>(R.id.btnBackAdmin)
@@ -71,7 +60,9 @@ class AdminProductManagementActivity : AppCompatActivity() {
         recyclerView.adapter = adminProductAdapter
 
         btnBack.setOnClickListener { finish() }
-        btnAddProduct.setOnClickListener { addProduct() }
+        btnAddProduct.setOnClickListener {
+            startActivity(Intent(this, SellProductActivity::class.java))
+        }
         btnResetDatabase.setOnClickListener {
             val reset = adminProductModel.resetDatabase()
             Toast.makeText(
@@ -80,7 +71,6 @@ class AdminProductManagementActivity : AppCompatActivity() {
                 Toast.LENGTH_SHORT
             ).show()
             if (reset) {
-                clearAddProductFields()
                 loadProducts()
             }
         }
@@ -88,35 +78,13 @@ class AdminProductManagementActivity : AppCompatActivity() {
         loadProducts()
     }
 
-    private fun loadProducts() {
-        val products = adminProductModel.loadProducts()
-        adminProductAdapter.submitList(products)
-    }
-
-    private fun addProduct() {
-        val error = adminProductModel.createProduct(
-            name = etProductName.text.toString(),
-            priceInput = etProductPrice.text.toString(),
-            description = etProductDescription.text.toString(),
-            categoryName = etCategoryName.text.toString(),
-            imageRef = etImageRef.text.toString()
-        )
-
-        if (error != null) {
-            Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        Toast.makeText(this, "Product added", Toast.LENGTH_SHORT).show()
-        clearAddProductFields()
+    override fun onResume() {
+        super.onResume()
         loadProducts()
     }
 
-    private fun clearAddProductFields() {
-        etProductName.text?.clear()
-        etProductPrice.text?.clear()
-        etCategoryName.text?.clear()
-        etImageRef.text?.clear()
-        etProductDescription.text?.clear()
+    private fun loadProducts() {
+        val products = adminProductModel.loadProducts()
+        adminProductAdapter.submitList(products)
     }
 }

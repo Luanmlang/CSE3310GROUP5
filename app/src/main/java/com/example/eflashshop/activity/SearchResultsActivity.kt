@@ -24,17 +24,10 @@ import com.google.android.material.card.MaterialCardView
 import kotlin.math.roundToInt
 
 class SearchResultsActivity : AppCompatActivity() {
-    private enum class FilterMode(val label: String) {
-        ALL("All"),
-        BUDGET("Under $50"),
-        PREMIUM("$50+")
-    }
-
     private enum class SortMode(val label: String) {
         FEATURED("Featured"),
         PRICE_LOW_HIGH("Price ↑"),
-        PRICE_HIGH_LOW("Price ↓"),
-        RATING_HIGH_LOW("Rating")
+        PRICE_HIGH_LOW("Price ↓")
     }
 
     private lateinit var catalogModel: CatalogModel
@@ -47,7 +40,9 @@ class SearchResultsActivity : AppCompatActivity() {
     private lateinit var cartBar: View
     private lateinit var tvCartBadge: TextView
     private lateinit var tvCartSummary: TextView
-    private var currentFilter = FilterMode.ALL
+    private var selectedCategory: String? = null
+    private var availableCategories = listOf<String>()
+    private val productCategoryCache = mutableMapOf<Long, String>()
     private var currentSort = SortMode.FEATURED
     private var currentQuery: String = ""
     private var allProducts = listOf<Product>()
@@ -89,9 +84,6 @@ class SearchResultsActivity : AppCompatActivity() {
             },
             imageBinder = { imageView, product ->
                 ProductAssetModel.bindProductImage(imageView, product)
-            },
-            ratingProvider = { product, position ->
-                catalogModel.ratingFor(product, position)
             }
         )
 
@@ -161,43 +153,55 @@ class SearchResultsActivity : AppCompatActivity() {
 
     private fun loadProducts() {
         allProducts = catalogModel.searchProducts(currentQuery)
+        productCategoryCache.clear()
+        allProducts.forEach { product ->
+            productCategoryCache[product.id] = catalogModel.categoryLabelFor(product)
+        }
+        availableCategories = allProducts
+            .map { resolveCategory(it) }
+            .distinct()
+            .sorted()
+        if (selectedCategory != null && selectedCategory !in availableCategories) {
+            selectedCategory = null
+        }
         renderProducts()
     }
 
     private fun renderProducts() {
         var products = allProducts
 
-        products = when (currentFilter) {
-            FilterMode.ALL -> products
-            FilterMode.BUDGET -> products.filter { it.price < 50.0 }
-            FilterMode.PREMIUM -> products.filter { it.price >= 50.0 }
+        if (!selectedCategory.isNullOrBlank()) {
+            val activeCategory = selectedCategory
+            products = products.filter { resolveCategory(it) == activeCategory }
         }
 
         products = when (currentSort) {
             SortMode.FEATURED -> products.sortedBy { it.id }
             SortMode.PRICE_LOW_HIGH -> products.sortedBy { it.price }
             SortMode.PRICE_HIGH_LOW -> products.sortedByDescending { it.price }
-            SortMode.RATING_HIGH_LOW -> products.sortedByDescending { catalogModel.ratingFor(it, it.id.toInt()) }
         }
 
-        tvFilterLabel.text = currentFilter.label
+        tvFilterLabel.text = selectedCategory ?: "All Categories"
         tvSortLabel.text = currentSort.label
         tvSearchEmpty.visibility = if (products.isEmpty()) View.VISIBLE else View.GONE
         searchAdapter.submitList(products)
     }
 
     private fun showFilterDialog() {
-        val modes = FilterMode.entries.toTypedArray()
-        val labels = modes.map { it.label }.toTypedArray()
-        var selectedIndex = modes.indexOf(currentFilter)
+        val options = listOf("All Categories") + availableCategories
+        var selectedIndex = if (selectedCategory == null) {
+            0
+        } else {
+            options.indexOf(selectedCategory).takeIf { it >= 0 } ?: 0
+        }
 
         AlertDialog.Builder(this)
-            .setTitle("Filter")
-            .setSingleChoiceItems(labels, selectedIndex) { _, which ->
+            .setTitle("Filter by Category")
+            .setSingleChoiceItems(options.toTypedArray(), selectedIndex) { _, which ->
                 selectedIndex = which
             }
             .setPositiveButton("Apply") { _, _ ->
-                currentFilter = modes[selectedIndex]
+                selectedCategory = if (selectedIndex == 0) null else options[selectedIndex]
                 renderProducts()
             }
             .setNegativeButton("Cancel", null)
@@ -226,6 +230,10 @@ class SearchResultsActivity : AppCompatActivity() {
         val intent = Intent(this, ItemDetailActivity::class.java)
         intent.putExtra("PRODUCT_ID", product.id)
         startActivity(intent)
+    }
+
+    private fun resolveCategory(product: Product): String {
+        return productCategoryCache[product.id] ?: catalogModel.categoryLabelFor(product)
     }
 
     private fun updateCartBar() {

@@ -129,7 +129,7 @@ class HomePageActivity : AppCompatActivity() {
         val supportProducts = products.drop(1)
         supportCards.forEachIndexed { index, supportViews ->
             if (index < supportProducts.size) {
-                bindSupportProduct(supportViews, supportProducts[index], index)
+                bindSupportProduct(supportViews, supportProducts[index])
                 supportViews.card.visibility = View.VISIBLE
             } else {
                 supportViews.card.visibility = View.GONE
@@ -148,13 +148,10 @@ class HomePageActivity : AppCompatActivity() {
         heroProductArrow.setOnClickListener(openDetail)
     }
 
-    private fun bindSupportProduct(views: SupportCardViews, product: Product, position: Int) {
+    private fun bindSupportProduct(views: SupportCardViews, product: Product) {
         views.name.text = product.name
         views.price.text = "$%.2f".format(product.price)
-        views.meta.text = "★ %.1f • %s".format(
-            catalogModel.ratingFor(product, position),
-            catalogModel.categoryLabelFor(product)
-        )
+        views.meta.text = catalogModel.categoryLabelFor(product)
         ProductAssetModel.bindProductImage(views.image, product)
         val openDetail = View.OnClickListener { openProductDetails(product) }
         views.card.setOnClickListener(openDetail)

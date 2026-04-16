@@ -61,63 +61,12 @@
             android:orientation="vertical"
             android:padding="14dp">
 
-            <EditText
-                android:id="@+id/etManagedProductName"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:background="@drawable/profile_input_bg"
-                android:hint="Product name"
-                android:paddingHorizontal="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
-
-            <EditText
-                android:id="@+id/etManagedProductPrice"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/profile_input_bg"
-                android:hint="Price (e.g. 249.99)"
-                android:inputType="numberDecimal"
-                android:paddingHorizontal="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
-
-            <EditText
-                android:id="@+id/etManagedProductCategory"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/profile_input_bg"
-                android:hint="Category"
-                android:paddingHorizontal="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
-
-            <EditText
-                android:id="@+id/etManagedProductImageRef"
-                android:layout_width="match_parent"
-                android:layout_height="46dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/profile_input_bg"
-                android:hint="Image ref (optional)"
-                android:paddingHorizontal="12dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
-
-            <EditText
-                android:id="@+id/etManagedProductDescription"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/profile_input_bg"
-                android:gravity="top|start"
-                android:hint="Description (optional)"
-                android:minLines="2"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="10dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
+                android:text="Use the same Sell Product form as regular users when creating new products."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -131,7 +80,7 @@
                     android:layout_height="48dp"
                     android:layout_weight="1"
                     android:background="@drawable/black_rounded_button"
-                    android:text="Add Product"
+                    android:text="Open Sell Form"
                     android:textColor="@android:color/white"
                     android:textSize="14sp" />
 

@@ -12,8 +12,7 @@ import com.google.android.material.card.MaterialCardView
 
 class SearchResultsAdapter(
     private val onProductClick: (Product) -> Unit,
-    private val imageBinder: (ImageView, Product) -> Unit,
-    private val ratingProvider: (Product, Int) -> Double
+    private val imageBinder: (ImageView, Product) -> Unit
 ) : RecyclerView.Adapter<SearchResultsAdapter.SearchResultViewHolder>() {
 
     private val products = mutableListOf<Product>()
@@ -36,7 +35,6 @@ class SearchResultsAdapter(
         val product = products[position]
         holder.title.text = product.name
         holder.price.text = "$%.2f".format(product.price)
-        holder.rating.text = "★ %.1f".format(ratingProvider(product, position))
         imageBinder(holder.image, product)
 
         val openDetail = View.OnClickListener { onProductClick(product) }
@@ -49,7 +47,6 @@ class SearchResultsAdapter(
         val image: ImageView = itemView.findViewById(R.id.ivProductImage)
         val title: TextView = itemView.findViewById(R.id.tvProductTitle)
         val price: TextView = itemView.findViewById(R.id.tvProductPrice)
-        val rating: TextView = itemView.findViewById(R.id.tvProductRating)
         val chevron: ImageView = itemView.findViewById(R.id.ivChevron)
     }
 }
