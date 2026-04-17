@@ -27,6 +27,7 @@ class ItemDetailActivity : AppCompatActivity() {
     private lateinit var tvProductPrice: TextView
     private lateinit var tvProductDescription: TextView
     private lateinit var tvProductCategory: TextView
+    private lateinit var tvProductStock: TextView
     private lateinit var btnAddToCart: Button
     private lateinit var btnBuyNow: Button
     private lateinit var btnBack: ImageButton
@@ -73,6 +74,7 @@ class ItemDetailActivity : AppCompatActivity() {
         tvProductPrice = findViewById(R.id.tvProductPrice)
         tvProductDescription = findViewById(R.id.tvProductDescription)
         tvProductCategory = findViewById(R.id.tvProductCategory)
+        tvProductStock = findViewById(R.id.tvProductStock)
         btnAddToCart = findViewById(R.id.btnAddToCart)
         btnBuyNow = findViewById(R.id.btnBuyNow)
         btnBack = findViewById(R.id.btnBack)
@@ -96,6 +98,24 @@ class ItemDetailActivity : AppCompatActivity() {
                 tvProductName.text = product.name
                 tvProductPrice.text = "$${product.price}"
                 tvProductDescription.text = product.description.orEmpty()
+            }
+        }
+
+        productViewModel.stock.observe(this) { stock ->
+            if (stock > 0) {
+                tvProductStock.text = "$stock in stock"
+                tvProductStock.setTextColor(resources.getColor(R.color.text_secondary, theme))
+                btnAddToCart.isEnabled = true
+                btnBuyNow.isEnabled = true
+            } else {
+                tvProductStock.text = "Out of stock"
+                tvProductStock.setTextColor(resources.getColor(android.R.color.holo_red_dark, theme))
+                btnAddToCart.isEnabled = false
+                btnBuyNow.isEnabled = false
+            }
+            val currentQty = etQuantity.text.toString().toIntOrNull() ?: 1
+            if (stock > 0 && currentQty > stock) {
+                etQuantity.setText(stock.toString())
             }
         }
 
@@ -179,7 +199,10 @@ class ItemDetailActivity : AppCompatActivity() {
 
         btnIncrement.setOnClickListener {
             val currentQuantity = etQuantity.text.toString().toIntOrNull() ?: 1
-            etQuantity.setText((currentQuantity + 1).toString())
+            val maxStock = productViewModel.stock.value ?: Int.MAX_VALUE
+            if (currentQuantity < maxStock) {
+                etQuantity.setText((currentQuantity + 1).toString())
+            }
         }
 
         btnDecrement.setOnClickListener {

@@ -1,5 +1,6 @@
 package com.example.eflashshop.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -38,6 +39,9 @@ class OrderConfirmationActivity : AppCompatActivity() {
         itemCountText.text = "Items: $itemCount"
 
         backToHomeButton.setOnClickListener {
+            val intent = Intent(this, HomePageActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
             finish()
         }
     }

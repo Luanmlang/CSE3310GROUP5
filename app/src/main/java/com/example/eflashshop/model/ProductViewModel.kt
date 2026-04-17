@@ -37,6 +37,9 @@ class ProductViewModel(
     private val _showCartBar = MutableLiveData<Boolean>(false)
     val showCartBar: LiveData<Boolean> = _showCartBar
 
+    private val _stock = MutableLiveData<Int>(0)
+    val stock: LiveData<Int> = _stock
+
     private val _toastMessage = MutableLiveData<String?>()
     val toastMessage: LiveData<String?> = _toastMessage
 
@@ -52,6 +55,7 @@ class ProductViewModel(
         if (productDetail != null) {
             _productDTO.value = productDetail
             _product.value = productDetail.product
+            _stock.value = productDetail.product.stock
             _categoryName.value = productDetail.categoryName
             _sellerName.value = productDetail.sellerDTO?.name
             _sellerEmail.value = productDetail.sellerDTO?.email

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/cardManagedProduct"
+    android:id="@+id/cardSellerProduct"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
@@ -19,7 +19,7 @@
         android:padding="12dp">
 
         <ImageView
-            android:id="@+id/ivManagedProductImage"
+            android:id="@+id/ivSellerProductImage"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:adjustViewBounds="true"
@@ -36,7 +36,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvManagedProductTitle"
+                android:id="@+id/tvSellerProductTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="2"
@@ -46,7 +46,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvManagedProductPrice"
+                android:id="@+id/tvSellerProductPrice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
@@ -56,7 +56,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvManagedProductCategory"
+                android:id="@+id/tvSellerProductCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
@@ -65,16 +65,7 @@
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/tvManagedProductSeller"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Seller: admin"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/tvManagedProductStock"
+                android:id="@+id/tvSellerProductStock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
@@ -83,7 +74,7 @@
                 android:textSize="12sp" />
 
             <TextView
-                android:id="@+id/tvManagedProductStatus"
+                android:id="@+id/tvSellerProductStatus"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
@@ -100,7 +91,7 @@
             android:orientation="vertical">
 
             <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switchManagedProductListed"
+                android:id="@+id/switchSellerProductListed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Live"
@@ -108,7 +99,7 @@
                 android:textSize="12sp" />
 
             <ImageButton
-                android:id="@+id/btnDeleteManagedProduct"
+                android:id="@+id/btnDeleteSellerProduct"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
                 android:layout_marginTop="6dp"

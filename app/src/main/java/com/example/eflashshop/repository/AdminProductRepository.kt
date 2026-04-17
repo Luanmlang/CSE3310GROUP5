@@ -20,6 +20,7 @@ class AdminProductRepository(private val dbHelper: DatabaseHelper) {
                 p.${DatabaseHelper.COLUMN_PRODUCT_DESCRIPTION} AS product_description,
                 p.${DatabaseHelper.COLUMN_PRODUCT_IMAGE_REF} AS product_image_ref,
                 p.${DatabaseHelper.COLUMN_PRODUCT_IS_LISTED} AS product_is_listed,
+                p.${DatabaseHelper.COLUMN_PRODUCT_STOCK} AS product_stock,
                 COALESCE(c.${DatabaseHelper.COLUMN_CATEGORY_NAME}, 'Uncategorized') AS category_name,
                 COALESCE(u.${DatabaseHelper.COLUMN_USER_NAME}, 'Unknown Seller') AS seller_name
             FROM ${DatabaseHelper.TABLE_PRODUCTS} p
@@ -43,7 +44,8 @@ class AdminProductRepository(private val dbHelper: DatabaseHelper) {
                     imageRef = cursor.getString(cursor.getColumnIndexOrThrow("product_image_ref")),
                     categoryName = cursor.getString(cursor.getColumnIndexOrThrow("category_name")),
                     sellerName = cursor.getString(cursor.getColumnIndexOrThrow("seller_name")),
-                    isListed = cursor.getInt(cursor.getColumnIndexOrThrow("product_is_listed")) == 1
+                    isListed = cursor.getInt(cursor.getColumnIndexOrThrow("product_is_listed")) == 1,
+                    stock = cursor.getInt(cursor.getColumnIndexOrThrow("product_stock"))
                 )
             )
         }

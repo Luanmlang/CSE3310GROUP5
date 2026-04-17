@@ -39,6 +39,7 @@ class ProfileActivity : AppCompatActivity() {
         tvProfileEmail = findViewById(R.id.tvProfileEmail)
         val btnLogoutProfile = findViewById<Button>(R.id.btnLogoutProfile)
         val cardAddresses = findViewById<View>(R.id.cardAddresses)
+        val cardSellerProducts = findViewById<View>(R.id.cardSellerProducts)
         val cardAdminProducts = findViewById<View>(R.id.cardAdminProducts)
         val cardPaymentMethods = findViewById<View>(R.id.cardPaymentMethods)
         val cardHelpCenter = findViewById<View>(R.id.cardHelpCenter)
@@ -58,6 +59,10 @@ class ProfileActivity : AppCompatActivity() {
         cardAdminProducts.visibility = if (isAdmin) View.VISIBLE else View.GONE
         cardAdminProducts.setOnClickListener {
             startActivity(Intent(this, AdminProductManagementActivity::class.java))
+        }
+        cardSellerProducts.visibility = if (!isAdmin) View.VISIBLE else View.GONE
+        cardSellerProducts.setOnClickListener {
+            startActivity(Intent(this, SellerProductManagementActivity::class.java))
         }
         cardAddresses.setOnClickListener {
             Toast.makeText(this, "Address settings coming soon", Toast.LENGTH_SHORT).show()

@@ -67,6 +67,7 @@ class ProductRepository(private val dbHelper: DatabaseHelper) {
                 p.${DatabaseHelper.COLUMN_PRODUCT_CATEGORY_ID},
                 p.${DatabaseHelper.COLUMN_PRODUCT_SELLER_USER_ID},
                 p.${DatabaseHelper.COLUMN_PRODUCT_IS_LISTED},
+                p.${DatabaseHelper.COLUMN_PRODUCT_STOCK},
                 c.${DatabaseHelper.COLUMN_CATEGORY_NAME} AS category_name,
                 u.${DatabaseHelper.COLUMN_USER_ID} AS seller_id,
                 u.${DatabaseHelper.COLUMN_USER_NAME} AS seller_name,
@@ -135,7 +136,8 @@ class ProductRepository(private val dbHelper: DatabaseHelper) {
             categoryId = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRODUCT_CATEGORY_ID)),
             sellerUserId = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRODUCT_SELLER_USER_ID)),
             imageRef = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRODUCT_IMAGE_REF)),
-            isListed = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRODUCT_IS_LISTED)) == 1
+            isListed = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRODUCT_IS_LISTED)) == 1,
+            stock = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRODUCT_STOCK))
         )
     }
 }

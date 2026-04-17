@@ -8,5 +8,6 @@ data class Product(
     val categoryId: Long,
     val sellerUserId: Long,
     val imageRef: String?,
-    val isListed: Boolean
+    val isListed: Boolean,
+    val stock: Int = 0
 )

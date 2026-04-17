@@ -12,10 +12,10 @@ import com.example.eflashshop.R
 import com.example.eflashshop.dto.ManagedProductDTO
 import com.example.eflashshop.model.ProductAssetModel
 
-class AdminProductAdapter(
+class SellerProductAdapter(
     private val onListingChanged: (ManagedProductDTO, Boolean) -> Unit,
     private val onDelete: (ManagedProductDTO) -> Unit
-) : RecyclerView.Adapter<AdminProductAdapter.AdminProductViewHolder>() {
+) : RecyclerView.Adapter<SellerProductAdapter.SellerProductViewHolder>() {
 
     private val products = mutableListOf<ManagedProductDTO>()
 
@@ -25,20 +25,19 @@ class AdminProductAdapter(
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdminProductViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SellerProductViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_admin_product, parent, false)
-        return AdminProductViewHolder(view)
+            .inflate(R.layout.item_seller_product, parent, false)
+        return SellerProductViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: AdminProductViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SellerProductViewHolder, position: Int) {
         val product = products[position]
         holder.title.text = product.name
         holder.price.text = "$%.2f".format(product.price)
         holder.category.text = "Category: ${product.categoryName}"
-        holder.seller.text = "Seller: ${product.sellerName}"
         holder.stock.text = "Stock: ${product.stock}"
-        holder.status.text = if (product.isListed) "Status: Listed" else "Status: Disabled"
+        holder.status.text = if (product.isListed) "Status: Listed" else "Status: Unlisted"
         ProductAssetModel.bindProductImage(holder.image, product.imageRef, product.name)
 
         holder.switchListed.setOnCheckedChangeListener(null)
@@ -52,15 +51,14 @@ class AdminProductAdapter(
 
     override fun getItemCount(): Int = products.size
 
-    class AdminProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val image: ImageView = itemView.findViewById(R.id.ivManagedProductImage)
-        val title: TextView = itemView.findViewById(R.id.tvManagedProductTitle)
-        val price: TextView = itemView.findViewById(R.id.tvManagedProductPrice)
-        val category: TextView = itemView.findViewById(R.id.tvManagedProductCategory)
-        val seller: TextView = itemView.findViewById(R.id.tvManagedProductSeller)
-        val stock: TextView = itemView.findViewById(R.id.tvManagedProductStock)
-        val status: TextView = itemView.findViewById(R.id.tvManagedProductStatus)
-        val switchListed: SwitchCompat = itemView.findViewById(R.id.switchManagedProductListed)
-        val deleteButton: ImageButton = itemView.findViewById(R.id.btnDeleteManagedProduct)
+    class SellerProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val image: ImageView = itemView.findViewById(R.id.ivSellerProductImage)
+        val title: TextView = itemView.findViewById(R.id.tvSellerProductTitle)
+        val price: TextView = itemView.findViewById(R.id.tvSellerProductPrice)
+        val category: TextView = itemView.findViewById(R.id.tvSellerProductCategory)
+        val stock: TextView = itemView.findViewById(R.id.tvSellerProductStock)
+        val status: TextView = itemView.findViewById(R.id.tvSellerProductStatus)
+        val switchListed: SwitchCompat = itemView.findViewById(R.id.switchSellerProductListed)
+        val deleteButton: ImageButton = itemView.findViewById(R.id.btnDeleteSellerProduct)
     }
 }

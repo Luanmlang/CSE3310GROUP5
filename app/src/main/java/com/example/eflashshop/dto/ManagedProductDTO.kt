@@ -8,5 +8,6 @@ data class ManagedProductDTO(
     val imageRef: String?,
     val categoryName: String,
     val sellerName: String,
-    val isListed: Boolean
+    val isListed: Boolean,
+    val stock: Int = 0
 )

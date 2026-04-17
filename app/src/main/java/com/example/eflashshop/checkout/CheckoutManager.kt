@@ -58,11 +58,35 @@ class CheckoutManager(private val dbHelper: DatabaseHelper) {
 
     fun removeCartItem(cartItemId: Long) {
         val db = dbHelper.writableDatabase
-        db.delete(
+        val cursor = db.query(
             DatabaseHelper.TABLE_CART_ITEM,
+            arrayOf(DatabaseHelper.COLUMN_CART_ITEM_QUANTITY),
             "${DatabaseHelper.COLUMN_CART_ITEM_ID} = ?",
-            arrayOf(cartItemId.toString())
+            arrayOf(cartItemId.toString()),
+            null, null, null, "1"
         )
+        val currentQty = if (cursor.moveToFirst()) {
+            cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CART_ITEM_QUANTITY))
+        } else 0
+        cursor.close()
+
+        if (currentQty > 1) {
+            val values = ContentValues().apply {
+                put(DatabaseHelper.COLUMN_CART_ITEM_QUANTITY, currentQty - 1)
+            }
+            db.update(
+                DatabaseHelper.TABLE_CART_ITEM,
+                values,
+                "${DatabaseHelper.COLUMN_CART_ITEM_ID} = ?",
+                arrayOf(cartItemId.toString())
+            )
+        } else {
+            db.delete(
+                DatabaseHelper.TABLE_CART_ITEM,
+                "${DatabaseHelper.COLUMN_CART_ITEM_ID} = ?",
+                arrayOf(cartItemId.toString())
+            )
+        }
     }
 
     fun createOrderFromCart(buyerUserId: Long, cart: Cart): CheckoutResult? {
@@ -100,6 +124,7 @@ class CheckoutManager(private val dbHelper: DatabaseHelper) {
             )
         }
 
+        cart.items.forEach { item -> deductStock(db, item.productId, item.quantity) }
         clearCartItems(cart.id)
 
         val order = Order(
@@ -187,6 +212,32 @@ class CheckoutManager(private val dbHelper: DatabaseHelper) {
         }
         cursor.close()
         return items
+    }
+
+    private fun deductStock(db: android.database.sqlite.SQLiteDatabase, productId: Long, quantity: Int) {
+        val cursor = db.query(
+            DatabaseHelper.TABLE_PRODUCTS,
+            arrayOf(DatabaseHelper.COLUMN_PRODUCT_STOCK),
+            "${DatabaseHelper.COLUMN_PRODUCT_ID} = ?",
+            arrayOf(productId.toString()),
+            null, null, null, "1"
+        )
+        val currentStock = if (cursor.moveToFirst()) {
+            cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_PRODUCT_STOCK))
+        } else 0
+        cursor.close()
+
+        val newStock = maxOf(0, currentStock - quantity)
+        val values = ContentValues().apply {
+            put(DatabaseHelper.COLUMN_PRODUCT_STOCK, newStock)
+            if (newStock == 0) put(DatabaseHelper.COLUMN_PRODUCT_IS_LISTED, 0)
+        }
+        db.update(
+            DatabaseHelper.TABLE_PRODUCTS,
+            values,
+            "${DatabaseHelper.COLUMN_PRODUCT_ID} = ?",
+            arrayOf(productId.toString())
+        )
     }
 
     private fun clearCartItems(cartId: Long) {

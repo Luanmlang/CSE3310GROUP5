@@ -42,6 +42,9 @@
             android:name=".activity.AdminProductManagementActivity"
             android:exported="false" />
         <activity
+            android:name=".activity.SellerProductManagementActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
         

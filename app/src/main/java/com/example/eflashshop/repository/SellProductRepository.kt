@@ -17,7 +17,8 @@ class SellProductRepository(private val dbHelper: DatabaseHelper) {
         productPrice: Double,
         categoryName: String,
         description: String?,
-        imageRef: String?
+        imageRef: String?,
+        stock: Int
     ): Long {
         val db = dbHelper.writableDatabase
         db.beginTransaction()
@@ -32,6 +33,7 @@ class SellProductRepository(private val dbHelper: DatabaseHelper) {
                 put(DatabaseHelper.COLUMN_PRODUCT_CATEGORY_ID, categoryId)
                 put(DatabaseHelper.COLUMN_PRODUCT_SELLER_USER_ID, sellerId)
                 put(DatabaseHelper.COLUMN_PRODUCT_IS_LISTED, 1)
+                put(DatabaseHelper.COLUMN_PRODUCT_STOCK, stock)
             }
             val productId = db.insert(DatabaseHelper.TABLE_PRODUCTS, null, values)
             if (productId > 0) {

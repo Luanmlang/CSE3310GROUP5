@@ -57,6 +57,7 @@ class SellProductActivity : AppCompatActivity() {
         val btnBack = findViewById<ImageButton>(R.id.btnBackSellProduct)
         val etProductName = findViewById<EditText>(R.id.etSellProductName)
         val etProductPrice = findViewById<EditText>(R.id.etSellProductPrice)
+        val etProductStock = findViewById<EditText>(R.id.etSellProductStock)
         val spinnerCategory = findViewById<Spinner>(R.id.spinnerSellCategory)
         val etProductDescription = findViewById<EditText>(R.id.etSellProductDescription)
         val btnUploadImage = findViewById<Button>(R.id.btnUploadProductImage)
@@ -86,6 +87,7 @@ class SellProductActivity : AppCompatActivity() {
                 sellerEmail = sellerEmail,
                 productName = etProductName.text.toString(),
                 productPriceInput = etProductPrice.text.toString(),
+                stockInput = etProductStock.text.toString(),
                 category = selectedCategory,
                 description = etProductDescription.text.toString(),
                 imageRef = selectedImageUri?.toString().orEmpty()

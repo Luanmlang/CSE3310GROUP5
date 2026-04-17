@@ -65,6 +65,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
                 $COLUMN_PRODUCT_CATEGORY_ID INTEGER NOT NULL,
                 $COLUMN_PRODUCT_SELLER_USER_ID INTEGER NOT NULL,
                 $COLUMN_PRODUCT_IS_LISTED INTEGER NOT NULL DEFAULT 1,
+                $COLUMN_PRODUCT_STOCK INTEGER NOT NULL DEFAULT 0,
                 FOREIGN KEY ($COLUMN_PRODUCT_CATEGORY_ID) REFERENCES $TABLE_CATEGORY($COLUMN_CATEGORY_ID) ON DELETE CASCADE,
                 FOREIGN KEY ($COLUMN_PRODUCT_SELLER_USER_ID) REFERENCES $TABLE_USER($COLUMN_USER_ID) ON DELETE CASCADE
             )
@@ -126,6 +127,10 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        if (oldVersion < 7) {
+            db.execSQL("ALTER TABLE $TABLE_PRODUCTS ADD COLUMN $COLUMN_PRODUCT_STOCK INTEGER NOT NULL DEFAULT 0")
+            return
+        }
         db.execSQL("DROP TABLE IF EXISTS $TABLE_ORDER_ITEMS")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_ORDERS")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_CART_ITEM")
@@ -209,7 +214,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
 
     companion object {
         private const val DATABASE_NAME = "eflashshop.db"
-        private const val DATABASE_VERSION = 6
+        private const val DATABASE_VERSION = 7
 
         const val TABLE_USER = "user"
         const val COLUMN_USER_ID = "id"
@@ -240,6 +245,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context.applicationCon
         const val COLUMN_PRODUCT_CATEGORY_ID = "category_id"
         const val COLUMN_PRODUCT_SELLER_USER_ID = "seller_user_id"
         const val COLUMN_PRODUCT_IS_LISTED = "is_listed"
+        const val COLUMN_PRODUCT_STOCK = "stock"
         const val COLUMN_PRODUCT_USER_ID = COLUMN_PRODUCT_SELLER_USER_ID
 
         const val TABLE_CART = "cart"

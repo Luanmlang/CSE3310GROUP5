@@ -15,6 +15,7 @@ class SellProductModel(private val sellProductRepository: SellProductRepository)
         sellerEmail: String,
         productName: String,
         productPriceInput: String,
+        stockInput: String,
         category: SellCategory,
         description: String,
         imageRef: String
@@ -29,6 +30,11 @@ class SellProductModel(private val sellProductRepository: SellProductRepository)
             return SellProductResult(false, "Enter a valid price")
         }
 
+        val stock = stockInput.trim().toIntOrNull()
+        if (stock == null || stock < 1) {
+            return SellProductResult(false, "Stock quantity must be at least 1")
+        }
+
         val normalizedEmail = sellerEmail.trim().lowercase()
         if (normalizedEmail.isBlank() || !normalizedEmail.contains("@")) {
             return SellProductResult(false, "Login session is invalid. Please log in again.")
@@ -41,7 +47,8 @@ class SellProductModel(private val sellProductRepository: SellProductRepository)
             productPrice = price,
             categoryName = category.label,
             description = description.trim().ifEmpty { null },
-            imageRef = imageRef.trim().ifEmpty { null }
+            imageRef = imageRef.trim().ifEmpty { null },
+            stock = stock
         )
 
         return if (insertedId > 0) {

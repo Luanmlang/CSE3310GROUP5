@@ -83,6 +83,18 @@
                 android:textColor="@color/text_primary"
                 android:textColorHint="@color/text_secondary" />
 
+            <EditText
+                android:id="@+id/etSellProductStock"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/profile_input_bg"
+                android:hint="Quantity in stock"
+                android:inputType="number"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary" />
+
             <Spinner
                 android:id="@+id/spinnerSellCategory"
                 android:layout_width="match_parent"
